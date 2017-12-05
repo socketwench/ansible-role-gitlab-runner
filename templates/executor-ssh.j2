@@ -1,0 +1,8 @@
+  [runners.ssh]
+    user = "{{ runner.ssh_user }}"
+    password = "{{ runner.ssh_password | default() }}"
+    host = "{{ runner.ssh_host }}"
+    port = "{{ runner.ssh_port | default('22') }}"
+{% if runner.ssh_identity_file | default(gitlab_runner_ssh_identity_file) %}
+    identity_file = "{{ runner.ssh_identity_file | default(gitlab_runner_ssh_identity_file) }}"
+{% endif %}

@@ -1,0 +1,6 @@
+version: '3'
+services:
+  test:
+    image: ansible/ansible:ubuntu1604
+    volumes:
+      - "./:/etc/ansible/roles/socketwench.gitlab-runner"

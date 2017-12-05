@@ -1,0 +1,3 @@
+---
+gitlab_runner_package_version_separator: '='
+gitlab_runner_repository_installation_script_url: " https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh"

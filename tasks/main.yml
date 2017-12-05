@@ -1,0 +1,48 @@
+---
+- name: Include OS-specific variables.
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Check if GitLab Runner is already installed.
+  stat:
+    path: "/usr/bin/gitlab-runner"
+  register: gitlab_runner_file
+
+- name: Download GitLab repository installation script.
+  get_url:
+    url: "{{ gitlab_runner_repository_installation_script_url }}"
+    dest: /tmp/gitlab_runner_install_repository.sh
+    validate_certs: "{{ gitlab_runner_download_validate_certs }}"
+  when: gitlab_runner_file.stat.exists == false
+
+- name: Install GitLab Runner repository.
+  command: bash /tmp/gitlab_runner_install_repository.sh
+  when: gitlab_runner_file.stat.exists == false
+
+- name: Define the Gitlab Runner package name.
+  set_fact:
+    gitlab_runner_package_name: "{{ gitlab_runner_base_package_name }}{{ gitlab_runner_package_version_separator }}{{ gitlab_runner_version }}"
+  when: gitlab_runner_version != ''
+
+- name: Install GitLab Runner.
+  package:
+    name: "{{ gitlab_runner_package_name | default(gitlab_runner_base_package_name) }}"
+    state: installed
+  when: gitlab_runner_file.stat.exists == false
+
+- name: Create the Gitlab Runner configuration directory.
+  file:
+    path: "{{ gitlab_runner_conf_dir }}"
+    state: directory
+    owner: "{{ gitlab_runner_conf_dir_owner }}"
+    group: "{{ gitlab_runner_conf_dir_group }}"
+    mode: "{{ gitlab_runner_conf_dir_mode }}"
+
+- name: Create the Gitlab Runner config.toml file.
+  template:
+    src: "templates/config.toml.j2"
+    dest: "{{ gitlab_runner_conf_file }}"
+    owner: "{{ gitlab_runner_conf_file_owner }}"
+    group: "{{ gitlab_runner_conf_file_group }}"
+    mode: "{{ gitlab_runner_conf_file_mode }}"
+  notify:
+    - restart gitlab runner

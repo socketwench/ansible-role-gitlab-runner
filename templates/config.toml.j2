@@ -1,0 +1,59 @@
+# {{ ansible_managed }}
+
+concurrent = {{ gitlab_runner_concurrent_jobs }}
+log_level = "{{ gitlab_runner_log_level }}"
+check_interval = {{ gitlab_runner_check_interval }}
+{% if gitlab_runner_sentry_dsn | default() %}
+sentry_dsn = "{{ gitlab_runner_sentry_dsn }}"
+{% endif %}
+{% if gitlab_runner_metrics_server_url | default() %}
+metrics_server = "{{ gitlab_runner_metrics_server_url }}"
+{% endif %}
+
+{% for runner in gitlab_runners %}
+[[runners]]
+  name = "{{ runner.name }}"
+  url = "{{ runner.url | default(gitlab_runner_coordinator_url) }}"
+  token = "{{ runner.token }}"
+  limit	= {{ runner.limit | default(0) }}
+  request_concurrency = {{ runner.request_concurrency | default(1) }}
+  output_limit	= {{ runner.output_limit | default(4096) }}
+  shell = "{{ runner.shell | default('bash') }}"
+{% if runner.tls_ca_file | default() %}
+  tls-ca-file = "{{ runner.tls_ca_file }}"
+{% endif %}
+{% if runner.tls_cert_file | default() %}
+  tls-cert-file = "{{ runner.tls_cert_file }}"
+{% endif %}
+{% if runner.tls_key_file | default() %}
+  tls-key-file = "{{ runner.tls_key_file }}"
+{% endif %}
+{% if runner.builds_dir | default() %}
+  builds_dir = "{{ runner.builds_dir }}"
+{% endif %}
+{% if runner.cache_dir | default() %}
+  cache_dir = "{{ runner.cache_dir }}"
+{% endif %}
+{% if runner.environment | default() %}
+  environment = "{{ runner.environment }}"
+{% endif %}
+{% if runner.pre_clone_script | default() %}
+  pre_clone_script = "{{ runner.pre_clone_script }}"
+{% endif %}
+{% if runner.pre_build_script | default() %}
+  pre_build_script = "{{ runner.pre_build_script }}"
+{% endif %}
+{% if runner.post_build_script | default() %}
+  post_build_script = "{{ runner.post_build_script }}"
+{% endif %}
+{% if runner.clone_url | default() %}
+  clone_url = "{{ runner.clone_url }}"
+{% endif %}
+{% if runner.executor is not defined %}
+executor = "shell"
+{% elif runner.executor == 'ssh' %}
+  executor = "ssh"
+{% include 'executor-ssh.j2'  %}
+{% endif %}
+{% include 'runners-cache.j2'  %}
+{% endfor %}

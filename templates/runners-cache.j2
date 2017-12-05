@@ -1,0 +1,14 @@
+  [runners.cache]
+{% if runner.cache_type is defined %}
+{% if runner.cache_type == 's3' %}
+    Type = "s3"
+    ServerAddress = "{{ runner.cache_s3_server_address | default('s3.amazonaws.com') }}"
+    AccessKey = "{{ runner.cache_s3_access_key }}"
+    SecretKey = "{{ runner.cache_s3_secret_key }}"
+    BucketName = "{{ runner.cache_s3_bucket_name }}"
+    BucketLocation = "{{ runner.cache_s3_bucket_location | default('eu-west-1') }}"
+    Insecure = {{ runner.cache_s3_insecure | default('false') }}
+    Path = "{{ runner.cache_s3_path }}"
+    Shared = {{ runner.cache_s3_shared | default('false') }}
+{% endif %}
+{% endif %}
