@@ -46,3 +46,9 @@
     mode: "{{ gitlab_runner_conf_file_mode }}"
   notify:
     - restart gitlab runner
+
+- name: Verify configuration and delete old runners.
+  shell: >
+    gitlab-runner verify --delete
+  become: yes
+  when: gitlab_runner_verify_with_delete == true

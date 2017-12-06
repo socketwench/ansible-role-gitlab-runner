@@ -1,5 +1,7 @@
 ---
 - name: restart gitlab runner
-  command: gitlab-runner restart
+  command: >
+    gitlab-runner restart
   register: gitlab_runner_restart
   failed_when: "gitlab_runner_restart.rc != 0"
+  become: yes

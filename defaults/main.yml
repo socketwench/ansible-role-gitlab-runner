@@ -1,8 +1,11 @@
 ---
-# Gitlab Runner Installation variables
+# Gitlab runner installation
 gitlab_runner_base_package_name: "gitlab-runner"
 gitlab_runner_version: ""
 gitlab_runner_download_validate_certs: yes
+
+# Gitlab runner post installation
+gitlab_runner_verify_with_delete: no
 
 # Gitlab runner configuration file
 gitlab_runner_conf_dir: "/etc/gitlab-runner"
