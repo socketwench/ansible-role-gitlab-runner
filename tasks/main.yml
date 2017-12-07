@@ -50,9 +50,9 @@
     url: "{{ item.gitlab_url | default(gitlab_runner_gitlab_url) }}/api/v4/runners"
     method: "POST"
     body: "token={{ item.token | default(gitlab_runner_token) }}&
-      description={{ item.name | urlencode }}&
-      tag_list={{ item.tags | default([]) | unique | join(",") | urlencode }}&
-      run_untagged={{ item.run_untagged | default(false) }}"
+    description={{ item.name | urlencode }}&
+    tag_list={{ item.tags | default([]) | unique | join(\",\") | urlencode }}&
+    run_untagged={{ item.run_untagged | default(false) }}"
     status_code: "200,201"
   with_items: gitlab_runners
 
