@@ -20,6 +20,7 @@ gitlab_runner_conf_file_mode: "u=rw,g=,o="
 
 # Global executor defaults
 gitlab_runner_ssh_identity_file: ""
+gitlab_runner_token: ""
 
 # Global runner configuration
 gitlab_runner_coordinator_url: ""

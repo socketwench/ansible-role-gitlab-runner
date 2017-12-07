@@ -14,7 +14,7 @@ metrics_server = "{{ gitlab_runner_metrics_server_url }}"
 [[runners]]
   name = "{{ runner.name }}"
   url = "{{ runner.url | default(gitlab_runner_coordinator_url) }}"
-  token = "{{ runner.token }}"
+  token = "{{ runner.token | default(gitlab_runner_token) }}
   limit	= {{ runner.limit | default(0) }}
   request_concurrency = {{ runner.request_concurrency | default(1) }}
   output_limit	= {{ runner.output_limit | default(4096) }}
