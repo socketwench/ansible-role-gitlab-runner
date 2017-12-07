@@ -37,24 +37,24 @@
     group: "{{ gitlab_runner_conf_dir_group }}"
     mode: "{{ gitlab_runner_conf_dir_mode }}"
 
-- name: Check if the Gitlab API is accessable.
-  uri:
-    url: '{{ gitlab_runner_gitlab_url }}'
-  register: gitlab_runner_api_check
-  when: gitlab_runner_gitlab_url | default()
-  failed_when: false
-  # no_log: true
+# - name: Check if the Gitlab API is accessable.
+#   uri:
+#     url: '{{ gitlab_runner_gitlab_url }}'
+#   register: gitlab_runner_api_check
+#   when: gitlab_runner_gitlab_url | default()
+#   failed_when: false
+#   # no_log: true
 
-- name: Register new Gitlab Runners.
-  uri:
-    url: "{{ item.gitlab_url | default(gitlab_runner_gitlab_url) }}/api/v4/runners"
-    method: "POST"
-    body: "token={{ item.token | default(gitlab_runner_token) }}&
-    description={{ item.name | urlencode }}&
-    tag_list={{ item.tags | default([]) | unique | join(\",\") | urlencode }}&
-    run_untagged={{ item.run_untagged | default(false) }}"
-    status_code: "200,201"
-  with_items: gitlab_runners
+# - name: Register new Gitlab Runners.
+#   uri:
+#     url: "{{ item.gitlab_url | default(gitlab_runner_gitlab_url) }}/api/v4/runners"
+#     method: "POST"
+#     body: "token={{ item.token | default(gitlab_runner_token) }}&
+#       description={{ item.name | urlencode }}&
+#       tag_list={{ item.tags | default([]) | unique | join(\",\") | urlencode }}&
+#       run_untagged={{ item.run_untagged | default(false) }}"
+#     status_code: "200,201"
+#   with_items: "{{ gitlab_runners }}"
 
 - name: Create the Gitlab Runner config.toml file.
   template:
@@ -78,12 +78,13 @@
     method: "DELETE"
     headers:
       "PRIVATE-TOKEN": "{{ gitlab_runner_api_key }}"
-  with_items: gitlab_runners
+  with_items: "{{ gitlab_runners }}"
   when:
     - gitlab_runner_api_check.status | default()
     - gitlab_runner_api_check.status == 200
     - gitlab_runner_api_key is defined
     - item.state is defined
     - item.state == 'absent'
+    - item.id is defined
   failed_when: False
-  # no_log: True
+  no_log: True
