@@ -96,7 +96,7 @@
     --url "{{ item.url | default(gitlab_runner_coordinator_url) }}"
     --registration-token {{ item.token | default(gitlab_runner_token) }}
     --name "{{ item.name }}"
-    --tag-list "{{ item.tags | join(',') }}"
+    --tag-list "{{ item.tags | default([]) | join(',') }}"
     --executor ssh
     --ssh-host {{ item.ssh_host }}"
     --ssh-identity-file "{{ item.ssh_identity_file | default(gitlab_runner_ssh_identity_file) }}"
