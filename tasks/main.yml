@@ -99,24 +99,27 @@
     --tag-list "{{ item.tags | default([]) | join(',') }}"
     --executor ssh
     --ssh-host {{ item.ssh_host }}
-    --ssh-identity-file "{{ item.ssh_identity_file | default(gitlab_runner_ssh_identity_file) }}"
     --ssh-port {{ item.ssh_port | default('22') }}
     --ssh-user {{ item.ssh_user }}
+    {% if item.ssh_identity_file is defined %}
+    --ssh-identity-file "{{ item.ssh_identity_file | default(gitlab_runner_ssh_identity_file) }}"
+    {% else %}
     --ssh-password "{{ item.ssh_password | default() }}"
+    {% endif %}
   with_items: "{{ gitlab_runners }}"
   when:
     - item.executor == "ssh"
   become: yes
 
-- name: Create the Gitlab Runner config.toml file.
-  template:
-    src: "templates/config.toml.j2"
-    dest: "{{ gitlab_runner_conf_file }}"
-    owner: "{{ gitlab_runner_conf_file_owner }}"
-    group: "{{ gitlab_runner_conf_file_group }}"
-    mode: "{{ gitlab_runner_conf_file_mode }}"
-  notify:
-    - restart gitlab runner
+# - name: Create the Gitlab Runner config.toml file.
+#   template:
+#     src: "templates/config.toml.j2"
+#     dest: "{{ gitlab_runner_conf_file }}"
+#     owner: "{{ gitlab_runner_conf_file_owner }}"
+#     group: "{{ gitlab_runner_conf_file_group }}"
+#     mode: "{{ gitlab_runner_conf_file_mode }}"
+#   notify:
+#     - restart gitlab runner
 
 # - name: Verify configuration and delete old runners.
 #   shell: >
