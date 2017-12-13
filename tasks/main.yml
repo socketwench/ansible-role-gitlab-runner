@@ -45,6 +45,17 @@
 #   failed_when: false
 #   # no_log: true
 
+# - name: List all current runners
+#   uri:
+#     url: "{{ gitlab_runner_gitlab_url }}/api/v4/runners/all"
+#     method: "GET"
+#     headers:
+#       "PRIVATE-TOKEN": "{{ gitlab_runner_api_key }}"
+#   register: gitlab_runners_known
+# - debug:
+#     msg: "{{ gitlab_runners_known.json }}"
+
+## This is based on the debops gitlab-runner role. It doesn't seem to work, though.
 # - name: Register new Gitlab Runners.
 #   uri:
 #     url: "{{ item.gitlab_url | default(gitlab_runner_gitlab_url) }}/api/v4/runners"
@@ -56,6 +67,47 @@
 #     status_code: "200,201"
 #   with_items: "{{ gitlab_runners }}"
 
+- name: Deregister all runners.
+  shell: >
+    gitlab-runner unregister --all-runners
+  become: yes
+
+- name: Verify all runners deleted.
+  shell: >
+    gitlab-runner verify --delete
+  become: yes
+
+- name: Register new shell runners using the gitlab-runner command.
+  shell: >
+    gitlab-runner register --non-interactive
+    --url "{{ item.url | default(gitlab_runner_coordinator_url) }}"
+    --registration-token {{ item.token | default(gitlab_runner_token) }}
+    --name "{{ item.name }}"
+    --tag-list "{{ item.tags | join(',') }}"
+    --executor shell
+  with_items: "{{ gitlab_runners }}"
+  when:
+    - item.executor == "shell"
+  become: yes
+
+- name: Register new SSH runners using the gitlab-runner command.
+  shell: >
+    gitlab-runner register --non-interactive
+    --url "{{ item.url | default(gitlab_runner_coordinator_url) }}"
+    --registration-token {{ item.token | default(gitlab_runner_token) }}
+    --name "{{ item.name }}"
+    --tag-list "{{ item.tags | join(',') }}"
+    --executor ssh
+    --ssh-host {{ item.ssh_host }}"
+    --ssh-identity-file "{{ item.ssh_identity_file | default(gitlab_runner_ssh_identity_file) }}"
+    --ssh-port {{ item.ssh_port | default('22') }}
+    --ssh-user {{ item.ssh_user }}
+    --ssh-password "{{ item.ssh_password | default() }}"
+  with_items: "{{ gitlab_runners }}"
+  when:
+    - item.executor == "ssh"
+  become: yes
+
 - name: Create the Gitlab Runner config.toml file.
   template:
     src: "templates/config.toml.j2"
@@ -66,11 +118,11 @@
   notify:
     - restart gitlab runner
 
-- name: Verify configuration and delete old runners.
-  shell: >
-    gitlab-runner verify --delete
-  become: yes
-  when: gitlab_runner_verify_with_delete == true
+# - name: Verify configuration and delete old runners.
+#   shell: >
+#     gitlab-runner verify --delete
+#   become: yes
+#   when: gitlab_runner_verify_with_delete == true
 
 # - name: Delete any runners with state=absent.
 #   uri:
@@ -80,8 +132,6 @@
 #       "PRIVATE-TOKEN": "{{ gitlab_runner_api_key }}"
 #   with_items: "{{ gitlab_runners }}"
 #   when:
-#     - gitlab_runner_api_check.status is defined
-#     - gitlab_runner_api_check.status == 200
 #     - gitlab_runner_api_key is defined
 #     - item.state is defined
 #     - item.state == 'absent'

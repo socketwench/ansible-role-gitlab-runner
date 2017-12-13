@@ -45,13 +45,6 @@ If you want to create runners, define the `gitlab_runners` variable:
 
 By default, if you do not specify an `executor`, it will assume `shell`. See the example playbook below for an SSH executor example.
 
-### Auto cleanup of old runners
-
-By default, this role only restarts Gitlab Runner after updating the configuration file. If you want to also re-verify the runner configuration with
-delete:
-
-    gitlab_runner_verify_with_delete: yes
-
 ## Dependencies
 
 None.
