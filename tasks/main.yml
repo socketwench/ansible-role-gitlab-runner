@@ -77,26 +77,14 @@
     gitlab-runner verify --delete
   become: yes
 
-- name: Register new shell runners using the gitlab-runner command.
-  shell: >
-    gitlab-runner register --non-interactive
-    --url "{{ item.url | default(gitlab_runner_coordinator_url) }}"
-    --registration-token {{ item.token | default(gitlab_runner_token) }}
-    --name "{{ item.name }}"
-    --tag-list "{{ item.tags | join(',') }}"
-    --executor shell
-  with_items: "{{ gitlab_runners }}"
-  when:
-    - item.executor == "shell"
-  become: yes
-
-- name: Register new SSH runners using the gitlab-runner command.
+- name: Register new runners using the gitlab-runner command.
   shell: >
     gitlab-runner register --non-interactive
     --url "{{ item.url | default(gitlab_runner_coordinator_url) }}"
     --registration-token {{ item.token | default(gitlab_runner_token) }}
     --name "{{ item.name }}"
     --tag-list "{{ item.tags | default([]) | join(',') }}"
+    {% if item.executor == "ssh" %}
     --executor ssh
     --ssh-host {{ item.ssh_host }}
     --ssh-port {{ item.ssh_port | default('22') }}
@@ -106,9 +94,10 @@
     {% else %}
     --ssh-password "{{ item.ssh_password | default() }}"
     {% endif %}
+    {% else %}
+    --executor shell
+    {% endif %}
   with_items: "{{ gitlab_runners }}"
-  when:
-    - item.executor == "ssh"
   become: yes
 
 # - name: Create the Gitlab Runner config.toml file.
