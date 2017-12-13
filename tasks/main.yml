@@ -101,7 +101,7 @@
     --ssh-host {{ item.ssh_host }}
     --ssh-port {{ item.ssh_port | default('22') }}
     --ssh-user {{ item.ssh_user }}
-    {% if item.ssh_identity_file is defined %}
+    {% if (item.ssh_identity_file is defined) or (gitlab_runner_ssh_identity_file) %}
     --ssh-identity-file "{{ item.ssh_identity_file | default(gitlab_runner_ssh_identity_file) }}"
     {% else %}
     --ssh-password "{{ item.ssh_password | default() }}"
