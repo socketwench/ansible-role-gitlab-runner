@@ -98,7 +98,7 @@
     --name "{{ item.name }}"
     --tag-list "{{ item.tags | default([]) | join(',') }}"
     --executor ssh
-    --ssh-host {{ item.ssh_host }}"
+    --ssh-host {{ item.ssh_host }}
     --ssh-identity-file "{{ item.ssh_identity_file | default(gitlab_runner_ssh_identity_file) }}"
     --ssh-port {{ item.ssh_port | default('22') }}
     --ssh-user {{ item.ssh_user }}
