@@ -84,6 +84,9 @@
     --registration-token {{ item.token | default(gitlab_runner_token) }}
     --name "{{ item.name }}"
     --tag-list "{{ item.tags | default([]) | join(',') }}"
+    {% if item.builds_dir | default('') != '' %}
+    --builds-dir {{ item.builds_dir }}
+    {% endif %}
     {% if item.executor == "ssh" %}
     --executor ssh
     --ssh-host {{ item.ssh_host }}
